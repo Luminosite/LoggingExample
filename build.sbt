@@ -1,5 +1,5 @@
-name := "sbt-multi-project-example"
-organization in ThisBuild := "com.pbassiner"
+name := "LoggingExample"
+organization in ThisBuild := "priv.L"
 scalaVersion in ThisBuild := "2.12.3"
 
 enablePlugins(PackPlugin)
@@ -88,18 +88,6 @@ lazy val commonDependencies = Seq(
 )
 
 // Use local repositories by default
-resolvers ++= Seq(
-  Resolver.defaultLocal,
-  Resolver.mavenLocal,
-  // make sure default maven local repository is added... Resolver.mavenLocal has bugs.
-  "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + "/.m2/repository",
-  // for pack plugin
-  "m1" at "http://repo1.maven.org/maven2/",
-  // for PayPal repo
-  "Paypal public" at "http://nexus.paypal.com/nexus/content/groups/public-all",
-  "PayPal Nexus releases" at "http://nexus.paypal.com/nexus/content/repositories/releases",
-  "PayPal Nexus snapshots" at "http://nexus.paypal.com/nexus/content/repositories/snapshots"
-)
 
 //externalResolvers := Resolver..withDefaultResolvers(resolvers.value, mavenCentral = false)
 
@@ -125,9 +113,16 @@ lazy val compilerOptions = Seq(
 lazy val commonSettings = Seq(
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
-    "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots")
+    Resolver.defaultLocal,
+    Resolver.mavenLocal,
+    // make sure default maven local repository is added... Resolver.mavenLocal has bugs.
+    "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + "/.m2/repository",
+    // for pack plugin
+    "m1" at "http://repo1.maven.org/maven2/",
+    // for PayPal repo
+    "Paypal public" at "http://nexus.paypal.com/nexus/content/groups/public-all",
+    "PayPal Nexus releases" at "http://nexus.paypal.com/nexus/content/repositories/releases",
+    "PayPal Nexus snapshots" at "http://nexus.paypal.com/nexus/content/repositories/snapshots"
   )
 )
 
