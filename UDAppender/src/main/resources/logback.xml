@@ -1,0 +1,20 @@
+<configuration debug="false">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSSS} [%thread] %logger{36} %-5level: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="UDA" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="priv.l.logging.example.logger.layout.SampleLayout" />
+        </encoder>
+    </appender>
+
+    <root level="TRACE">
+        <appender-ref ref="UDA" />
+    </root>
+</configuration>

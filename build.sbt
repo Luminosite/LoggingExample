@@ -1,51 +1,51 @@
-name := "LoggingExample"
-organization in ThisBuild := "priv.L"
+//name := "LExample"
+//organization in ThisBuild := "priv.L"
 scalaVersion in ThisBuild := "2.12.3"
+version := "0.1.0"
 
 enablePlugins(PackPlugin)
 // PROJECTS
 
-lazy val global = project
-  .in(file("."))
-  .settings(settings)
-  .aggregate(
-    common,
-    multi1,
-    multi2
-  )
+lazy val global = Project(
+  id = "root",
+  base = file(".")
+) aggregate(udAppender, multiAppender, multiLogger)
 
-lazy val common = project
+lazy val multiLogger = project
+  .in(file("multi_logger"))
   .settings(
-    name := "common",
+    name := "multiLogger",
     settings,
-    libraryDependencies ++= commonDependencies
+    mainClass in assembly := Some("priv.l.logging.example.main.Main"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.logback,
+      dependencies.scalaLogging
+    )
   )
 
-lazy val multi1 = project
+lazy val udAppender = project
+  .in(file("UDAppender"))
   .settings(
-    name := "multi1",
+    name := "uda",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.monocleCore,
-      dependencies.monocleMacro
+      dependencies.logback,
+      dependencies.scalaLogging
     )
   )
-  .dependsOn(
-    common
-  )
 
-lazy val multi2 = project
+lazy val multiAppender = project
+  .in(file("multi_appender"))
   .settings(
-    name := "multi2",
+    name := "ma",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.pureconfig
+      dependencies.logback,
+      dependencies.slf4jAPI
     )
-  )
-  .dependsOn(
-    common
   )
 
 // DEPENDENCIES
@@ -54,7 +54,7 @@ lazy val dependencies =
   new {
     val logbackV        = "1.2.3"
     val logstashV       = "4.11"
-    val scalaLoggingV   = "3.7.2"
+    val scalaLoggingV   = "3.9.0"
     val slf4jV          = "1.7.25"
     val typesafeConfigV = "1.3.1"
     val pureconfigV     = "0.8.0"
@@ -63,10 +63,12 @@ lazy val dependencies =
     val scalatestV      = "3.0.4"
     val scalacheckV     = "1.13.5"
 
-    val logback        = "ch.qos.logback"             % "logback-classic"          % logbackV
+    val logbackCore    = "ch.qos.logback"             % "logback-core"             % "1.2.3"
+    val logback        = "ch.qos.logback"             % "logback-classic"          % "1.2.3"
     val logstash       = "net.logstash.logback"       % "logstash-logback-encoder" % logstashV
     val scalaLogging   = "com.typesafe.scala-logging" %% "scala-logging"           % scalaLoggingV
     val slf4j          = "org.slf4j"                  % "jcl-over-slf4j"           % slf4jV
+    val slf4jAPI       = "org.slf4j"                  % "slf4j-api"                % "1.7.25"
     val typesafeConfig = "com.typesafe"               % "config"                   % typesafeConfigV
     val akka           = "com.typesafe.akka"          %% "akka-stream"             % akkaV
     val monocleCore    = "com.github.julien-truffaut" %% "monocle-core"            % monocleV
@@ -76,18 +78,25 @@ lazy val dependencies =
     val scalacheck     = "org.scalacheck"             %% "scalacheck"              % scalacheckV
   }
 
-lazy val commonDependencies = Seq(
+lazy val loggingDependencies = Seq(
   dependencies.logback,
   dependencies.logstash,
   dependencies.scalaLogging,
-  dependencies.slf4j,
+  dependencies.slf4j
+)
+
+lazy val commonDependencies = Seq(
   dependencies.typesafeConfig,
   dependencies.akka,
   dependencies.scalatest  % "test",
   dependencies.scalacheck % "test"
 )
 
-// Use local repositories by default
+// main classes for pack
+packMain := Map(
+  "lb" -> "priv.l.logging.example.main.LogbackMain",
+  "sl" -> "priv.l.logging.example.main.ScalaLogMain"
+)
 
 //externalResolvers := Resolver..withDefaultResolvers(resolvers.value, mavenCentral = false)
 
