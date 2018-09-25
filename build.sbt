@@ -1,6 +1,7 @@
 //name := "LExample"
 //organization in ThisBuild := "priv.L"
-scalaVersion in ThisBuild := "2.12.3"
+val sv = "2.12.3"
+scalaVersion in ThisBuild := sv
 version := "0.1.0"
 
 enablePlugins(PackPlugin)
@@ -8,8 +9,53 @@ enablePlugins(PackPlugin)
 
 lazy val global = Project(
   id = "root",
-  base = file(".")
-) aggregate(udAppender, multiAppender, multiLogger)
+  base = file("."))
+  .aggregate(elastic)
+//  .aggregate(udAppender, multiAppender, multiLogger, filters, elastic, structured)
+
+lazy val structured = project
+  .in(file("zest/structured"))
+  .settings(
+    name := "structured",
+    settings ++ exJarSettings,
+    mainClass in assembly := Some("priv.l.logging.example.main.ScalaLogMain"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.logback,
+      dependencies.shapless,
+      dependencies.playJson,
+      dependencies.scalaReflect,
+      dependencies.scalaMeta
+    )
+  )
+
+lazy val elastic = project
+  .in(file("zest/elastic"))
+  .settings(
+    name := "elastic",
+    settings,
+    mainClass in assembly := Some("priv.l.logging.example.main.Main"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+//      dependencies.metrics
+      dependencies.elasticAppender,
+      dependencies.logback,
+      dependencies.scalaLogging
+    )
+  )
+
+lazy val filters = project
+  .in(file("filters"))
+  .settings(
+    name := "filters",
+    settings,
+    mainClass in assembly := Some("priv.l.logging.example.main.Main"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.logback,
+      dependencies.scalaLogging
+    )
+  )
 
 lazy val multiLogger = project
   .in(file("multi_logger"))
@@ -28,7 +74,7 @@ lazy val udAppender = project
   .in(file("UDAppender"))
   .settings(
     name := "uda",
-    settings,
+    settings ++ exJarSettings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
       dependencies.logback,
@@ -76,6 +122,14 @@ lazy val dependencies =
     val pureconfig     = "com.github.pureconfig"      %% "pureconfig"              % pureconfigV
     val scalatest      = "org.scalatest"              %% "scalatest"               % scalatestV
     val scalacheck     = "org.scalacheck"             %% "scalacheck"              % scalacheckV
+
+    val shapless       = "com.chuusai" %% "shapeless" % "2.3.2"
+    val playJson       = "com.typesafe.play" %% "play-json" % "2.6.0" % "test"
+    val scalaReflect   = "org.scala-lang" % "scala-reflect" % sv
+    val scalaMeta      = "org.scalameta" %% "scalameta" % "1.8.0"
+
+    val elasticAppender= "com.internetitem" % "logback-elasticsearch-appender" % "1.6"
+//    val metrics        = "io.dropwizard.metrics" % "metrics-core" % "4.0.0"
   }
 
 lazy val loggingDependencies = Seq(
@@ -133,6 +187,10 @@ lazy val commonSettings = Seq(
     "PayPal Nexus releases" at "http://nexus.paypal.com/nexus/content/repositories/releases",
     "PayPal Nexus snapshots" at "http://nexus.paypal.com/nexus/content/repositories/snapshots"
   )
+)
+
+lazy val exJarSettings = Seq(
+  unmanagedBase := file("lib")
 )
 
 lazy val wartremoverSettings = Seq(
