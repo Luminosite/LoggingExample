@@ -10,7 +10,7 @@ enablePlugins(PackPlugin)
 lazy val global = Project(
   id = "root",
   base = file("."))
-  .aggregate(elastic)
+  .aggregate(elastic, structured)
 //  .aggregate(udAppender, multiAppender, multiLogger, filters, elastic, structured)
 
 lazy val structured = project
@@ -21,6 +21,7 @@ lazy val structured = project
     mainClass in assembly := Some("priv.l.logging.example.main.ScalaLogMain"),
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.metrics,
       dependencies.logback,
       dependencies.shapless,
       dependencies.playJson,
@@ -28,21 +29,49 @@ lazy val structured = project
       dependencies.scalaMeta
     )
   )
+  .aggregate(slime)
+  .dependsOn(slime)
 
 lazy val elastic = project
   .in(file("zest/elastic"))
   .settings(
     name := "elastic",
-    settings,
+    settings ++ exJarSettings,
     mainClass in assembly := Some("priv.l.logging.example.main.Main"),
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
-//      dependencies.metrics
-      dependencies.elasticAppender,
+      dependencies.shapless,
+      dependencies.playJson,
+      dependencies.scalaReflect,
+      dependencies.metrics,
+      dependencies.amzon,
+      dependencies.jackson,
+//      dependencies.elasticAppender,
       dependencies.logback,
       dependencies.scalaLogging
     )
   )
+  .aggregate(slime)
+  .dependsOn(structured, slime)
+
+
+lazy val macros = project
+  .in(file("zest/macros"))
+  .settings(slimeSettings: _*)
+  .settings(
+    name := "slime-macros",
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scalameta" %% "scalameta" % "1.8.0"
+    )
+  )
+
+lazy val slime = project
+  .in(file("zest/slime"))
+  .settings(slimeSettings: _*)
+  .aggregate(macros)
+  .dependsOn(macros)
+  .settings(name := "slime")
 
 lazy val filters = project
   .in(file("filters"))
@@ -129,7 +158,10 @@ lazy val dependencies =
     val scalaMeta      = "org.scalameta" %% "scalameta" % "1.8.0"
 
     val elasticAppender= "com.internetitem" % "logback-elasticsearch-appender" % "1.6"
-//    val metrics        = "io.dropwizard.metrics" % "metrics-core" % "4.0.0"
+    val metrics        = "io.dropwizard.metrics" % "metrics-core" % "4.0.0"
+    val jackson = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.0"
+    val amzon          = "com.amazonaws" % "aws-java-sdk-core" % "1.11.31" % "provided"
+
   }
 
 lazy val loggingDependencies = Seq(
@@ -187,6 +219,59 @@ lazy val commonSettings = Seq(
     "PayPal Nexus releases" at "http://nexus.paypal.com/nexus/content/repositories/releases",
     "PayPal Nexus snapshots" at "http://nexus.paypal.com/nexus/content/repositories/snapshots"
   )
+)
+
+lazy val slimeSettings = Seq(
+  version := "0.2.1",
+  scalaVersion := "2.12.3",
+  scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
+  crossScalaVersions := Seq("2.12.3"),
+  organization := "com.slime",
+  homepage := Some(url("https://github.com/petterarvidsson/slime")),
+  organizationHomepage := Some(url("https://github.com/petterarvidsson/slime")),
+  licenses := Seq("MIT License" -> url("https://opensource.org/licenses/MIT")),
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+  libraryDependencies ++= Seq(
+    "com.chuusai" %% "shapeless" % "2.3.2",
+    "ch.qos.logback" % "logback-classic" % "1.2.3" % "provided,test",
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+    "com.typesafe.play" %% "play-json" % "2.6.0" % "test"
+  ),
+  publishMavenStyle := true,
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+    else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  },
+  publishArtifact in Test := false,
+  pomIncludeRepository := (_ => false),
+  pomExtra :=
+    <scm>
+      <url>git@github.com:petterarvidsson/slime.git</url>
+      <connection>scm:git:git@github.com:petterarvidsson/slime.git</connection>
+    </scm>
+      <developers>
+        <developer>
+          <id>petterarvidsson</id>
+          <name>Petter Arvidsson</name>
+          <url>https://github.com/petterarvidsson</url>
+        </developer>
+        <developer>
+          <id>hansjoergschurr</id>
+          <name>Hans-Jörg Schurr</name>
+          <url>https://github.com/hansjoergschurr</url>
+        </developer>
+        <developer>
+          <id>lucastorri</id>
+          <name>Lucas Torri</name>
+          <url>http://unstablebuild.com</url>
+        </developer>
+        <developer>
+          <id>hcwilhelm</id>
+          <name>Hans Christian Wilhelm</name>
+          <url>https://github.com/hcwilhelm</url>
+        </developer>
+      </developers>
 )
 
 lazy val exJarSettings = Seq(
