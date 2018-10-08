@@ -59,8 +59,6 @@ class Encoder extends EncoderBase[LoggingEvent] {
 
     val b = format(event, values)
     val str = new String(b, StandardCharsets.UTF_8).replace("\n", "")
-    println(s"kmsg: en: '$str'")
-    System.out.flush()
     val clazz = classOf[LoggingEvent]
     val formatVal = clazz.getDeclaredField("formattedMessage")
     formatVal.setAccessible(true)

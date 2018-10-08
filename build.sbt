@@ -10,14 +10,14 @@ enablePlugins(PackPlugin)
 lazy val global = Project(
   id = "root",
   base = file("."))
-  .aggregate(elastic, structured)
+  .aggregate(structured, integrated)
 //  .aggregate(udAppender, multiAppender, multiLogger, filters, elastic, structured)
 
 lazy val structured = project
   .in(file("zest/structured"))
   .settings(
     name := "structured",
-    settings ++ exJarSettings,
+    settings ++ structuredLoggerLib,
     mainClass in assembly := Some("priv.l.logging.example.main.ScalaLogMain"),
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -29,14 +29,30 @@ lazy val structured = project
       dependencies.scalaMeta
     )
   )
-  .aggregate(slime)
-  .dependsOn(slime)
+
+lazy val integrated = project
+  .in(file("zest/integrated"))
+  .settings(
+    name := "integrated-logging",
+    settings ++ structuredLoggerLib,
+    mainClass in assembly := Some("priv.l.logging.example.main.Main"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.shapless,
+      dependencies.playJson,
+      dependencies.scalaReflect,
+      dependencies.metrics,
+      dependencies.elasticAppender,
+      dependencies.logback,
+      dependencies.scalaLogging
+    )
+  )
 
 lazy val elastic = project
   .in(file("zest/elastic"))
   .settings(
     name := "elastic",
-    settings ++ exJarSettings,
+    settings ++ elasticAppenderLib,
     mainClass in assembly := Some("priv.l.logging.example.main.Main"),
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -103,7 +119,7 @@ lazy val udAppender = project
   .in(file("UDAppender"))
   .settings(
     name := "uda",
-    settings ++ exJarSettings,
+    settings ++ elasticAppenderLib,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
       dependencies.logback,
@@ -159,7 +175,7 @@ lazy val dependencies =
 
     val elasticAppender= "com.internetitem" % "logback-elasticsearch-appender" % "1.6"
     val metrics        = "io.dropwizard.metrics" % "metrics-core" % "4.0.0"
-    val jackson = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.0"
+    val jackson        = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.0"
     val amzon          = "com.amazonaws" % "aws-java-sdk-core" % "1.11.31" % "provided"
 
   }
@@ -274,8 +290,12 @@ lazy val slimeSettings = Seq(
       </developers>
 )
 
-lazy val exJarSettings = Seq(
-  unmanagedBase := file("lib")
+lazy val elasticAppenderLib = Seq(
+  unmanagedBase := file("libs/elastic_appender")
+)
+
+lazy val structuredLoggerLib = Seq(
+  unmanagedBase := file("libs/structured")
 )
 
 lazy val wartremoverSettings = Seq(
