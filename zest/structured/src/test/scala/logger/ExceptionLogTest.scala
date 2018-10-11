@@ -16,6 +16,9 @@ class ExceptionLogTest extends UTTrait {
     }
   }
 
-  def funcThrowException(): Unit =
-    throw new Exception("this is test exception's message")
+  def funcThrowException(): Unit ={
+    val root = new Exception("root exception")
+    val middle = new Exception("middle exception", root)
+    throw new Exception("this is test exception's message", middle)
+  }
 }

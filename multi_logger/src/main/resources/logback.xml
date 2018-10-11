@@ -11,7 +11,7 @@
     <logger name="priv.l.logging.example" level="INFO" />
     <logger name="priv.l.logging.example.foo" level="DEBUG" />
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

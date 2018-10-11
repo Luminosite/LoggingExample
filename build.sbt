@@ -10,8 +10,39 @@ enablePlugins(PackPlugin)
 lazy val global = Project(
   id = "root",
   base = file("."))
-  .aggregate(structured, integrated)
+  .aggregate(sentryUsage, testUtils)
 //  .aggregate(udAppender, multiAppender, multiLogger, filters, elastic, structured)
+
+lazy val testUtils = project
+  .in(file("zest/TestUtils"))
+  .settings(
+    name := "TestUtils",
+    settings,
+    mainClass in assembly := Some("priv.l.logging.example.main.Main"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.scalatest,
+      dependencies.shapless,
+      dependencies.playJson,
+      dependencies.scalaReflect,
+      dependencies.scalaMeta
+    )
+  )
+
+lazy val sentryUsage = project
+  .in(file("zest/SentryUsage"))
+  .settings(
+    name := "SentryUsage",
+    settings,
+    mainClass in assembly := Some("priv.l.logging.example.main.Main"),
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.sentry,
+      dependencies.scalaReflect,
+      dependencies.scalaMeta
+    )
+  )
+  .dependsOn(testUtils)
 
 lazy val structured = project
   .in(file("zest/structured"))
@@ -177,6 +208,7 @@ lazy val dependencies =
     val metrics        = "io.dropwizard.metrics" % "metrics-core" % "4.0.0"
     val jackson        = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.0"
     val amzon          = "com.amazonaws" % "aws-java-sdk-core" % "1.11.31" % "provided"
+    val sentry          = "io.sentry" % "sentry" % "1.7.10"
 
   }
 

@@ -11,6 +11,7 @@ object TryLog extends LazyLogging {
     catch {
       case NonFatal(e) =>
         logger.error("got exception", "exception" -> e)
+        new Exception()
         Failure(e)
     }
 }
