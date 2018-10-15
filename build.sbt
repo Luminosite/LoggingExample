@@ -8,7 +8,7 @@ enablePlugins(PackPlugin)
 // PROJECTS
 
 lazy val global = Project(
-  id = "root",
+  id = "LoggingExample",
   base = file("."))
   .aggregate(sentryUsage, testUtils)
 //  .aggregate(udAppender, multiAppender, multiLogger, filters, elastic, structured)
