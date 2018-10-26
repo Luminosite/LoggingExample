@@ -7,8 +7,10 @@ import priv.l.logging.example.logger.struct.LogStruct
 object Main extends App with LazyLogging {
 
   {
+    StructuredLogger.logKVs("freeKey1" -> 1, "freeKey2" -> "value_2", "freeKey3" -> 3.3)
     StructuredLogger.debugLog("log info level message")
     StructuredLogger.errorLog("log error level message")
+    StructuredLogger.logKVs("freeKey4" -> "value_4", "freeKey5" -> "value_5", "freeKey6" -> 9.9)
   }
 
   logMetrics()

@@ -19,6 +19,11 @@ object StructuredLogger extends LazyLogging {
     current :: pre
   }
 
+  def logKVs(kvs: (String, Any)*): Unit = {
+    val map: Map[String, Any] = kvs.toMap
+    metricsLogger.info("key_value_pairs", "key_value_pairs" -> map)
+  }
+
   def debugLog(log: String, level: String = "info"): Unit =
     messageLogger.info("message", "message_body" -> log)
 
