@@ -10,8 +10,8 @@ enablePlugins(PackPlugin)
 lazy val global = Project(
   id = "LoggingExample",
   base = file("."))
-  .aggregate(sentryUsage, testUtils)
-//  .aggregate(udAppender, multiAppender, multiLogger, filters, elastic, structured)
+  .aggregate(integrated)
+//  .aggregate(testUtils, sentryUsage, udAppender, multiAppender, multiLogger, filters, elastic, structured)
 
 lazy val testUtils = project
   .in(file("zest/TestUtils"))
@@ -48,7 +48,7 @@ lazy val structured = project
   .in(file("zest/structured"))
   .settings(
     name := "structured",
-    settings ++ structuredLoggerLib,
+    settings,// ++ structuredLoggerLib,
     mainClass in assembly := Some("priv.l.logging.example.main.ScalaLogMain"),
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -60,6 +60,7 @@ lazy val structured = project
       dependencies.scalaMeta
     )
   )
+  .dependsOn(slime, macros)
 
 lazy val integrated = project
   .in(file("zest/integrated"))

@@ -1,52 +1,49 @@
 package priv.l.logging.example.main
 
-import com.codahale.metrics.{ MetricRegistry, Slf4jReporter }
 import com.slime.LazyLogging
-import org.slf4j.LoggerFactory
-import priv.l.logging.example.struct.{ MyStruct1, MyStruct2 }
+import priv.l.logging.example.logger.StructuredLogger
+import priv.l.logging.example.logger.struct.LogStruct
 
 object Main extends App with LazyLogging {
 
+  {
+    StructuredLogger.debugLog("log info level message")
+    StructuredLogger.errorLog("log error level message")
+  }
+
+  logMetrics()
   logMyStructs()
   logExceptions()
-  metricsLog()
+
+  def logMetrics(): Unit = {
+    val metrics = Map(
+      "v1" -> 33,
+      "v2" -> "value"
+    )
+    StructuredLogger.logMetrics(metrics)
+
+    val metrics2 = Map(
+      "v21" -> 99,
+      "v22" -> "value2"
+    )
+    StructuredLogger.logMetrics(metrics2)
+  }
 
   def logMyStructs(): Unit = {
-    val m1 = MyStruct1("string a", 2, 3.3, List("l1", "l2", "l3"))
-    logger.info("log my info in to elastic test", "e" -> m1)
-
-    val m2 = MyStruct2(99, "struct 2 tp", 0.98, List(1, 2, 3, 4, 5))
-    logger.info("log my info2 in to elastic test", "e" -> m2)
+    val m1 = LogStruct("string a", 2, 3.3, List("l1", "l2", "l3"))
+    StructuredLogger.logStructs(m1)
   }
 
-  def logExceptions(): Unit = {
-    val exception = new Exception("exception message in exception")
-    logger.error("error message in log", "exception" -> exception)
-  }
-
-  def metricsLog(): Unit = {
-    val metrics = new MetricRegistry()
-    val meter   = metrics.meter("test_meter")
-
-    println("report in the end")
-    val reporter = Slf4jReporter
-      .forRegistry(metrics)
-      .outputTo(LoggerFactory.getLogger("com.example.metrics"))
-      .build
-
-    (1 to 100).foreach { i =>
-      val t = new Thread() {
-        override def run(): Unit = {
-          Thread.sleep(i * 20)
-          meter.mark()
-        }
-      }
-      t.start()
+  def logExceptions(): Unit =
+    try {
+      funcThrowException()
+    } catch {
+      case e: Exception => StructuredLogger.logException(e)
     }
 
-    Thread.sleep(3000)
-
-    reporter.report()
-    reporter.close()
+  def funcThrowException(): Unit = {
+    val root   = new Exception("root exception")
+    val middle = new Exception("middle exception", root)
+    throw new Exception("this is test exception's message", middle)
   }
 }

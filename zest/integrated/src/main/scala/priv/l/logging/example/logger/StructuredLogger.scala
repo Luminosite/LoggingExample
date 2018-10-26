@@ -1,18 +1,35 @@
-package priv.l.logging.helper
-import com.slime.LazyLogging
+package priv.l.logging.example.logger
 
-case class ExceptionInfo(msg: String, stack: List[List[String]])
+import com.slime.{ LazyLogging, Logger }
+import priv.l.logging.example.logger.struct.LogStruct
 
-object DefaultLogger extends LazyLogging {
+object StructuredLogger extends LazyLogging {
+  private val metricsLogger = Logger("bsi_metrics")
+  private val messageLogger = Logger("bsi_message")
+
   def logException(e: Exception): Unit = {
     val stack = getTraces(e)
     val eInfo = ExceptionInfo(e.getMessage, stack)
-    logger.error("exception_info", "exception" -> eInfo)
+    messageLogger.error("exception_info", "exception" -> eInfo)
   }
 
-  def getTraces(t: Throwable): List[List[String]] = {
+  private[this] def getTraces(t: Throwable): List[List[String]] = {
     val current = t.toString :: t.getStackTrace.map(_.toString).toList
     val pre     = Option(t.getCause).map(getTraces).getOrElse(List())
     current :: pre
+  }
+
+  def debugLog(log: String, level: String = "info"): Unit =
+    messageLogger.info("message", "message_body" -> log)
+
+  def errorLog(log: String): Unit =
+    messageLogger.error("message", "message_body" -> log)
+
+  def logMetrics(map: Map[String, Any]): Unit =
+    metricsLogger.info("metrics", "metrics" -> map)
+
+  def logStructs(struct: LogStruct): Unit = {
+    val structName = struct.getClass.getName
+    metricsLogger.info("struct", "struct_name" -> structName, "struct" -> struct)
   }
 }

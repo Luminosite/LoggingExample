@@ -49,7 +49,7 @@ e_get(){
           }
         }
       ],
-      "size": 11
+      "size": 10000
     }
     '`
 
@@ -116,7 +116,10 @@ spear_constructor(){
 echo_sample_data(){
 echo ' {"unix_time":1545234035,
 "data_time":"2018-08-08 23:00:00",
-"job_name":"WeeklyJob"," step_name":"UDS"," status":"running"}'
+"job_name":"WeeklyJob",
+"step_name":"UDS",
+"status":"running",
+"comment":""}'
 
 }
 #search

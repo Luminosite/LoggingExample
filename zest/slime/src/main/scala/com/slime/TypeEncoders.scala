@@ -24,6 +24,26 @@ trait TypeEncoders extends LowPriorityTypeEncoders {
     NestedValue(Seq("message" -> StringValue(e.getMessage), "stack" -> StringValue(new String(stackTrace.toString))))
   }
 
+  implicit val mapValue: Valuable[Map[String, Any]] = { map =>
+    val kvs = map.map{ kv =>
+      val key = kv._1
+      val value = kv._2
+      val v = value match {
+        case str: String => StringValue(str)
+        case num: Byte => NumberValue(num)
+        case num: Short => NumberValue(num)
+        case num: Int => NumberValue(num)
+        case num: Long => NumberValue(num)
+        case num: Float => NumberValue(num)
+        case num: Double => NumberValue(num)
+        case bool: Boolean => BooleanValue(bool)
+        case _ => throw new IllegalArgumentException("logging frame only accept map with values of string or number")
+      }
+      key -> v
+    }.toSeq
+    NestedValue(kvs)
+  }
+
   implicit val stringKey: Keyable[String] = (s: String) => s
   implicit val symbolKey: Keyable[Symbol] = (s: Symbol) => s.name
 
@@ -46,6 +66,9 @@ trait TypeEncoders extends LowPriorityTypeEncoders {
   implicit def traversablePairEncoder[K, V, C[_]](implicit te: TypeEncoder[(K, V)],
                                                   collection: Collection[(K, V), C]): TypeEncoder[C[(K, V)]] =
     t => collection.traversable(t).flatMap(te.encode).toSeq
+
+//  implicit def traversableMapValuable[K, V, C[_, _] <: Map[_, _]](implicit te: TypeEncoder[V]): TypeEncoder[C[K, V]] =
+//    t => t.toSeq.map(kv => kv._1.toString -> implicitly[Valuable[V]].get(kv._2))
 
 }
 
@@ -84,4 +107,8 @@ trait Valuable[-V] {
 
 trait Collection[V, C[_]] {
   def traversable(collection: C[V]): Traversable[V]
+}
+
+trait MapType[K, V, C[_, _]] {
+  def seq(m: C[K, V]): Traversable[(K, V)]
 }

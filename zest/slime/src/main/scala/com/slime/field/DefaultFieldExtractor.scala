@@ -38,7 +38,8 @@ object DefaultFieldExtractor {
   val fieldExtractors: Map[String, LoggingEvent => Value] =
     Map(
       "level" -> (e => StringValue(e.getLevel.toString)),
-      "message" -> (e => StringValue(e.getFormattedMessage)),
+//      "message" -> (e => StringValue(e.getFormattedMessage)),
+      "message" -> (e => StringValue(e.getMessage)),
       "thread" -> (e => StringValue(e.getThreadName)),
       "logger" -> (e => StringValue(e.getLoggerName)),
       "mdc" -> (e => NestedValue(e.getMDCPropertyMap.asScala.mapValues(StringValue).toSeq)),
