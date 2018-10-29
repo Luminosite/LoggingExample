@@ -1,20 +1,16 @@
 package priv.l.logging.example.main
-
-import com.slime.LazyLogging
-import priv.l.logging.example.logger.StructuredLogger
-import priv.l.logging.example.logger.struct.LogStruct
+import priv.l.logging.example.logger.LazyLogging
 
 object Main extends App with LazyLogging {
 
   {
-    StructuredLogger.logKVs("freeKey1" -> 1, "freeKey2" -> "value_2", "freeKey3" -> 3.3)
-    StructuredLogger.debugLog("log info level message")
-    StructuredLogger.errorLog("log error level message")
-    StructuredLogger.logKVs("freeKey4" -> "value_4", "freeKey5" -> "value_5", "freeKey6" -> 9.9)
+    info("log info level message")
+    error("log error level message")
+    info("KV values", "freeKey4"          -> "value_4", "freeKey5" -> "value_5", "freeKey6" -> 9.9)
+    error("log error level message", "k1" -> 1, "k2"               -> "v2", "k3"            -> 3.3)
   }
 
   logMetrics()
-  logMyStructs()
   logExceptions()
 
   def logMetrics(): Unit = {
@@ -22,25 +18,22 @@ object Main extends App with LazyLogging {
       "v1" -> 33,
       "v2" -> "value"
     )
-    StructuredLogger.logMetrics(metrics)
+    logMetrics(metrics)
 
     val metrics2 = Map(
       "v21" -> 99,
       "v22" -> "value2"
     )
-    StructuredLogger.logMetrics(metrics2)
-  }
-
-  def logMyStructs(): Unit = {
-    val m1 = LogStruct("string a", 2, 3.3, List("l1", "l2", "l3"))
-    StructuredLogger.logStructs(m1)
+    logMetrics(metrics2)
   }
 
   def logExceptions(): Unit =
     try {
       funcThrowException()
     } catch {
-      case e: Exception => StructuredLogger.logException(e)
+      case e: Exception =>
+        error("get error message", e)
+        error("get error message", e, "key1" -> e.hashCode(), "key2" -> e.getMessage)
     }
 
   def funcThrowException(): Unit = {

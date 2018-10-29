@@ -76,7 +76,7 @@
 
     <appender name="ELASTIC" class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">
         <url>http://localhost:9200/_bulk</url>
-        <index>log8</index>
+        <index>bsi_log</index>
         <type>normal_log</type>
         <loggerName>es-logger</loggerName> <!-- optional -->
         <errorLoggerName>es-error-logger</errorLoggerName> <!-- optional -->
@@ -127,29 +127,15 @@
         <appender-ref ref="ELASTIC" />
     </root>
 
-    <logger name="bsi_message" level="ERROR">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="ELASTIC1" />
-    </logger>
-
-    <logger name="bsi_metrics" level="INFO">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="ELASTIC2" />
-    </logger>
-
     <logger name="es-error-logger" level="INFO" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 
     <logger name="es-logger" level="INFO" additivity="false">
         <appender name="ES_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!-- ... -->
             <encoder class="com.slime.Encoder" >
                 <format class="com.slime.format.Json" />
             </encoder>
-            <!--<encoder>-->
-                <!--<pattern>%msg</pattern> &lt;!&ndash; This pattern is important, otherwise it won't be the raw Elasticsearch format anyomre &ndash;&gt;-->
-            <!--</encoder>-->
         </appender>
     </logger>
 </configuration>
