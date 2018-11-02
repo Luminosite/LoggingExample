@@ -8,6 +8,7 @@ object Main extends App with LazyLogging {
     error("log error level message")
     info("KV values", "freeKey4"          -> "value_4", "freeKey5" -> "value_5", "freeKey6" -> 9.9)
     error("log error level message", "k1" -> 1, "k2"               -> "v2", "k3"            -> 3.3)
+    FunctionObj.operation()
   }
 
   logMetrics()
