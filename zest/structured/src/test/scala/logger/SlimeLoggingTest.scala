@@ -1,7 +1,7 @@
 package logger
 
 import com.slime.LazyLogging
-import logger.element.{Mi, MyLogInfo}
+import logger.element.{ Mi, MyLogInfo }
 import utils.UTTrait
 
 import scala.collection.mutable
@@ -19,7 +19,7 @@ class SlimeLoggingTest extends UTTrait with LazyLogging {
   it should "log map" in {
     val map = Map("a" -> 18, "b" -> "22", "c" -> 3.3)
 //    val map = List(1,2,3)
-    logger.info("log msg", "map"-> map)
+    logger.info("log msg", "map" -> map)
 
     val singleMap = Map("a" -> 12, "b" -> 13)
     logger.info("log msg", "simple map" -> singleMap)

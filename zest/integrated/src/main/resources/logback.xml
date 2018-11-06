@@ -115,7 +115,7 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder class="com.slime.Encoder" >
-            <format class="com.slime.format.Json" />
+            <format class="com.slime.format.StructuredPlainText" />
         </encoder>
         <!--<encoder>-->
             <!--<pattern>%d{HH:mm:ss.SSSS} [%thread] %logger{36} %-5level: %msg%n</pattern>-->

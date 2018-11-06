@@ -1,8 +1,8 @@
 package logger
-import priv.l.logging.helper.{DefaultLogger, TryLog}
+import priv.l.logging.helper.{ DefaultLogger, TryLog }
 import utils.UTTrait
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class ExceptionLogTest extends UTTrait {
 //  "TryLog" should "log exception automatically" in {
@@ -16,17 +16,19 @@ class ExceptionLogTest extends UTTrait {
 //    }
 //  }
 
-  def funcThrowException(): Unit ={
-    val root = new Exception("root exception")
+  def funcThrowException(): Unit = {
+    val root   = new Exception("root exception")
     val middle = new Exception("middle exception", root)
     throw new Exception("this is test exception's message", middle)
   }
 
   it should "get Exception Stack" in {
-    try{
-    funcThrowException()
+    try {
+      funcThrowException()
     } catch {
-      case e: Exception => DefaultLogger.logException(e)
+      case e: Exception =>
+        DefaultLogger.logException(e)
+        e.printStackTrace()
     }
   }
 
